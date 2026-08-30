@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Detalhes da Demanda #{{ demanda['id'] }}</h2>
+<div style="border:1px solid #ccc; padding:15px; margin-bottom:20px;">
+<h3>{{ demanda['titulo'] }}</h3><p><strong>Descrição:</strong></p><p>{{ demanda['descricao'] }}</p>
+<p><strong>Solicitante:</strong> {{ demanda['solicitante'] }}</p>
+<p><strong>Prioridade:</strong> {{ demanda['prioridade'] }}</p>
+<p><strong>Responsável:</strong> {{ demanda['responsavel'] }}</p>
+<p><strong>Data de Criação:</strong> {{ demanda['data_criacao'] }}</p><br>
+<a href="/editar/{{ demanda['id'] }}"><button>Editar</button></a> <a href="/"><button>Voltar</button></a>
+</div>
+<h3>Comentários</h3>
+{% for comentario in comentarios %}
+<div style="background:#f0f0f0; padding:10px; margin:10px 0;"><p><strong>{{ comentario['autor'] }}</strong> em {{ comentario['data'] }}</p><p>{{ comentario['comentario'] }}</p></div>
+{% else %}<p>Nenhum comentário ainda.</p>{% endfor %}
+<h4>Adicionar Comentário</h4>
+<form method="POST" action="/adicionar_comentario/{{ demanda['id'] }}">
+<div><label>Seu nome:</label><br><input type="text" name="autor" size="30" required></div><br>
+<div><label>Comentário:</label><br><textarea name="comentario" rows="4" cols="50" required></textarea></div><br>
+<button type="submit">Enviar Comentário</button>
+</form>
+{% endblock %}

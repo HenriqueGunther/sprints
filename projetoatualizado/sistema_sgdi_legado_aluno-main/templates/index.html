@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Lista de Demandas</h2>
+<table border="1" cellpadding="10" cellspacing="0" width="100%">
+<thead><tr bgcolor="#cccccc">
+<th>ID</th><th>Título</th><th>Solicitante</th><th>Prioridade</th><th>Responsável</th><th>Data</th><th>Ações</th>
+</tr></thead>
+<tbody>
+{% for demanda in demandas %}
+<tr>
+<td>{{ demanda['id'] }}</td><td>{{ demanda['titulo'] }}</td><td>{{ demanda['solicitante'] }}</td>
+<td><span class="prioridade prioridade-{{ demanda['prioridade']|lower|replace('é','e') }}">{{ demanda['prioridade'] }}</span></td>
+<td>{{ demanda['responsavel'] }}</td><td>{{ demanda['data_criacao'] }}</td>
+<td><a href="/detalhes/{{ demanda['id'] }}">Ver</a> | <a href="/editar/{{ demanda['id'] }}">Editar</a> |
+<a href="/deletar/{{ demanda['id'] }}" style="color:red;" onclick="return confirm('Deseja realmente deletar esta demanda?')">Deletar</a></td>
+</tr>
+{% else %}<tr><td colspan="7">Nenhuma demanda encontrada.</td></tr>{% endfor %}
+</tbody></table>
+<br><br><a href="/nova_demanda"><button>+ Nova Demanda</button></a>
+{% endblock %}

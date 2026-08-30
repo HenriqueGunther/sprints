@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Nova Demanda</h2>
+<form method="POST" action="/nova_demanda">
+<div><label>Título:</label><br><input type="text" name="titulo" size="50" required></div><br>
+<div><label>Descrição:</label><br><textarea name="descricao" rows="5" cols="50"></textarea></div><br>
+<div><label>Solicitante:</label><br><input type="text" name="solicitante" required></div><br>
+<div><label>Prioridade:</label><br><select name="prioridade" required>
+<option value="BAIXA">BAIXA - Pode ser resolvida posteriormente, sem impacto imediato.</option>
+<option value="MÉDIA" selected>MÉDIA - Demanda importante, mas sem impacto crítico imediato.</option>
+<option value="ALTA">ALTA - Demanda urgente ou com grande impacto no funcionamento do sistema.</option>
+</select></div><br>
+<div><label>Responsável:</label><br><input type="text" name="responsavel" size="50" required placeholder="Nome do responsável"></div><br>
+<button type="submit">Salvar</button> <a href="/"><button type="button">Cancelar</button></a>
+</form>
+{% endblock %}
