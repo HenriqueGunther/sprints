@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Solicitantes</h2>
+<p>Cadastre cada pessoa uma única vez para evitar duplicidade e acompanhar suas demandas.</p>
+<form method="POST" action="/solicitantes">
+<div><label>Nome:</label><br><input type="text" name="nome" required></div>
+<div><label>E-mail:</label><br><input type="email" name="email" required></div>
+<div><label>Departamento:</label><br><input type="text" name="departamento" required></div><br>
+<button type="submit">Cadastrar solicitante</button>
+</form>
+<h3>Solicitantes cadastrados</h3>
+<table border="1" cellpadding="10" cellspacing="0" width="100%">
+<thead><tr bgcolor="#cccccc"><th>Nome</th><th>E-mail</th><th>Departamento</th><th>Demandas vinculadas</th></tr></thead>
+<tbody>
+{% for solicitante in solicitantes %}
+<tr><td>{{ solicitante['nome'] }}</td><td>{{ solicitante['email'] }}</td><td>{{ solicitante['departamento'] }}</td><td><a href="/?solicitante_id={{ solicitante['id'] }}">Ver demandas</a></td></tr>
+{% else %}<tr><td colspan="4">Nenhum solicitante cadastrado.</td></tr>{% endfor %}
+</tbody></table>
+{% endblock %}

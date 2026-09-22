@@ -13,10 +13,12 @@ O objetivo do sistema é permitir que uma equipe consiga:
 - cadastrar novas demandas;
 - definir a prioridade de cada demanda;
 - informar o responsável no momento do cadastro;
+- selecionar um solicitante cadastrado com nome, e-mail e departamento;
 - visualizar as demandas cadastradas;
 - editar informações de uma demanda;
 - alterar o responsável por uma demanda quando necessário;
 - organizar as demandas de acordo com sua prioridade.
+- acompanhar a quantidade de demandas por solicitante.
 
 Neste momento, o sistema não possui categorias, prazo de resolução ou alertas de vencimento, pois esses recursos não fazem parte dos requisitos atuais.
 
@@ -38,6 +40,16 @@ O responsável é informado no momento em que a demanda é criada.
 
 Depois do cadastro, qualquer pessoa que tenha acesso ao sistema pode editar a demanda e alterar o responsável. Essa regra foi adotada para permitir que a equipe redistribua as atividades conforme a necessidade.
 
+### Solicitante
+
+Cada demanda possui um único solicitante. Os solicitantes são cadastrados na tela
+**Solicitantes**, com nome, e-mail e departamento. O nome e o e-mail são únicos
+para evitar duplicidade. Demandas novas devem selecionar um cadastro existente.
+
+Demandas antigas que possuíam apenas texto continuam preservadas e aparecem como
+**legadas**. Elas devem ser associadas manualmente a um solicitante pela tela de
+edição.
+
 ### Categorias
 
 Não foi implementada separação por categorias, pois esse recurso não é necessário para a versão atual do sistema.
@@ -52,12 +64,13 @@ O fluxo básico do sistema é:
 
 1. Acessar o sistema.
 2. Criar uma nova demanda.
-3. Informar os dados solicitados.
-4. Selecionar a prioridade.
-5. Informar o responsável.
-6. Salvar a demanda.
-7. Visualizar a demanda na lista.
-8. Editar a demanda quando for necessário alterar alguma informação, inclusive o responsável.
+3. Selecionar um solicitante cadastrado.
+4. Informar os demais dados solicitados.
+5. Selecionar a prioridade.
+6. Informar o responsável.
+7. Salvar a demanda.
+8. Visualizar ou filtrar as demandas por solicitante e prioridade.
+9. Editar a demanda quando for necessário alterar alguma informação.
 
 ## 5. Estrutura do projeto
 
@@ -89,7 +102,7 @@ Com o projeto aberto no VS Code, abrir o terminal na pasta do projeto e executar
 python init_db.py
 ```
 
-Depois, iniciar a aplicação:
+Depois, inicie a aplicação:
 
 ```bash
 python app.py
@@ -101,6 +114,9 @@ Após iniciar o servidor, acessar o endereço informado pelo Flask no terminal, 
 http://127.0.0.1:5000
 ```
 
+Com a aplicação aberta, acesse **Solicitantes** para cadastrar as pessoas antes
+de criar novas demandas.
+
 ## 8. Alterações realizadas nesta versão
 
 Nesta versão foram realizadas as seguintes alterações:
@@ -108,6 +124,10 @@ Nesta versão foram realizadas as seguintes alterações:
 - criação do campo de prioridade;
 - criação das opções BAIXA, MÉDIA e ALTA;
 - inclusão do responsável no cadastro da demanda;
+- criação do cadastro único de solicitantes;
+- migração compatível com demandas legadas sem vínculo;
+- filtros por solicitante e prioridade;
+- resumo da quantidade de demandas de cada solicitante;
 - obrigatoriedade de informar o responsável ao criar uma demanda;
 - possibilidade de alterar o responsável posteriormente;
 - organização da visualização das demandas por prioridade;

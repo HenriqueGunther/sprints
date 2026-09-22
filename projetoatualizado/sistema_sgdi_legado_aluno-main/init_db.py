@@ -21,6 +21,17 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS comentarios (
     data TEXT
 )''')
 
+cursor.execute('''CREATE TABLE IF NOT EXISTS solicitantes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL COLLATE NOCASE UNIQUE,
+    email TEXT NOT NULL COLLATE NOCASE UNIQUE,
+    departamento TEXT NOT NULL
+)''')
+
+columns = [row[1] for row in cursor.execute('PRAGMA table_info(demandas)')]
+if 'solicitante_id' not in columns:
+    cursor.execute('ALTER TABLE demandas ADD COLUMN solicitante_id INTEGER REFERENCES solicitantes(id)')
+
 cursor.execute("DELETE FROM demandas")
 cursor.execute("DELETE FROM comentarios")
 

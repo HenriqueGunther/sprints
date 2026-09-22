@@ -103,3 +103,7 @@ textarea {
 .prioridade-baixa { color: #2e7d32; }
 input[type="text"], textarea, select { padding: 8px; border: 1px solid #ddd; max-width: 100%; }
 select { width: 100%; max-width: 650px; }
+.resumo-solicitantes { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0 20px; }
+.resumo-solicitantes span { background: #eef5ee; border: 1px solid #c8ddc8; padding: 8px 12px; }
+.legado { color: #8a4b08; }
+small { color: #555; }

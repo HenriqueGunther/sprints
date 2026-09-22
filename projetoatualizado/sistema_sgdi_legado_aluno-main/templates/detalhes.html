@@ -3,7 +3,8 @@
 <h2>Detalhes da Demanda #{{ demanda['id'] }}</h2>
 <div style="border:1px solid #ccc; padding:15px; margin-bottom:20px;">
 <h3>{{ demanda['titulo'] }}</h3><p><strong>Descrição:</strong></p><p>{{ demanda['descricao'] }}</p>
-<p><strong>Solicitante:</strong> {{ demanda['solicitante'] }}</p>
+<p><strong>Solicitante:</strong> {{ solicitante_label(demanda) }}</p>
+{% if demanda['solicitante_nome'] %}<p><strong>E-mail:</strong> {{ demanda['solicitante_email'] }}</p><p><strong>Departamento:</strong> {{ demanda['solicitante_departamento'] }}</p>{% else %}<p><em>Registro legado: precisa ser associado manualmente a um solicitante cadastrado.</em></p>{% endif %}
 <p><strong>Prioridade:</strong> {{ demanda['prioridade'] }}</p>
 <p><strong>Responsável:</strong> {{ demanda['responsavel'] }}</p>
 <p><strong>Data de Criação:</strong> {{ demanda['data_criacao'] }}</p><br>

@@ -4,7 +4,15 @@
 <form method="POST" action="/editar/{{ demanda['id'] }}">
 <div><label>Título:</label><br><input type="text" name="titulo" value="{{ demanda['titulo'] }}" size="50" required></div><br>
 <div><label>Descrição:</label><br><textarea name="descricao" rows="5" cols="50">{{ demanda['descricao'] }}</textarea></div><br>
-<div><label>Solicitante:</label><br><input type="text" name="solicitante" value="{{ demanda['solicitante'] }}" required></div><br>
+<div><label>Solicitante:</label><br>
+<select name="solicitante_id" required>
+<option value="">Selecione um solicitante</option>
+{% for solicitante in solicitantes %}
+<option value="{{ solicitante['id'] }}" {% if demanda['solicitante_id'] == solicitante['id'] %}selected{% endif %}>{{ solicitante['nome'] }} - {{ solicitante['email'] }} ({{ solicitante['departamento'] }})</option>
+{% endfor %}
+</select>
+{% if not demanda['solicitante_id'] %}<small>Esta demanda é legada. Selecione um cadastro para regularizá-la.</small>{% endif %}
+</div><br>
 <div><label>Prioridade:</label><br><select name="prioridade" required>
 <option value="BAIXA" {% if demanda['prioridade']=='BAIXA' %}selected{% endif %}>BAIXA - Pode ser resolvida posteriormente, sem impacto imediato.</option>
 <option value="MÉDIA" {% if demanda['prioridade']=='MÉDIA' %}selected{% endif %}>MÉDIA - Demanda importante, mas sem impacto crítico imediato.</option>

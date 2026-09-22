@@ -1,6 +1,29 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>Lista de Demandas</h2>
+<form method="GET" action="/">
+<label>Filtrar por solicitante:</label>
+<select name="solicitante_id">
+<option value="">Todos</option>
+{% for solicitante in solicitantes %}
+<option value="{{ solicitante['id'] }}" {% if filtro_solicitante == solicitante['id'] %}selected{% endif %}>{{ solicitante['nome'] }} ({{ solicitante['departamento'] }})</option>
+{% endfor %}
+</select>
+<label>Prioridade:</label>
+<select name="prioridade">
+<option value="">Todas</option>
+{% for prioridade in ['ALTA', 'MÉDIA', 'BAIXA'] %}
+<option value="{{ prioridade }}" {% if filtro_prioridade == prioridade %}selected{% endif %}>{{ prioridade }}</option>
+{% endfor %}
+</select>
+<button type="submit">Filtrar</button>
+</form>
+{% if resumo %}
+<h3>Demandas por solicitante</h3>
+<div class="resumo-solicitantes">
+{% for item in resumo %}<span><strong>{{ item['nome'] }}</strong> ({{ item['departamento'] }}): {{ item['total_demandas'] }}</span>{% endfor %}
+</div>
+{% endif %}
 <table border="1" cellpadding="10" cellspacing="0" width="100%">
 <thead><tr bgcolor="#cccccc">
 <th>ID</th><th>Título</th><th>Solicitante</th><th>Prioridade</th><th>Responsável</th><th>Data</th><th>Ações</th>
@@ -8,7 +31,10 @@
 <tbody>
 {% for demanda in demandas %}
 <tr>
-<td>{{ demanda['id'] }}</td><td>{{ demanda['titulo'] }}</td><td>{{ demanda['solicitante'] }}</td>
+<td>{{ demanda['id'] }}</td><td>{{ demanda['titulo'] }}</td><td>
+{% if demanda['solicitante_nome'] %}{{ demanda['solicitante_nome'] }}<br><small>{{ demanda['solicitante_email'] }} - {{ demanda['solicitante_departamento'] }}</small>
+{% else %}<span class="legado">{{ demanda['solicitante'] }} (legado)</span>{% endif %}
+</td>
 <td><span class="prioridade prioridade-{{ demanda['prioridade']|lower|replace('é','e') }}">{{ demanda['prioridade'] }}</span></td>
 <td>{{ demanda['responsavel'] }}</td><td>{{ demanda['data_criacao'] }}</td>
 <td><a href="/detalhes/{{ demanda['id'] }}">Ver</a> | <a href="/editar/{{ demanda['id'] }}">Editar</a> |

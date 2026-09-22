@@ -4,7 +4,15 @@
 <form method="POST" action="/nova_demanda">
 <div><label>Título:</label><br><input type="text" name="titulo" size="50" required></div><br>
 <div><label>Descrição:</label><br><textarea name="descricao" rows="5" cols="50"></textarea></div><br>
-<div><label>Solicitante:</label><br><input type="text" name="solicitante" required></div><br>
+<div><label>Solicitante:</label><br>
+<select name="solicitante_id" required>
+<option value="">Selecione um solicitante</option>
+{% for solicitante in solicitantes %}
+<option value="{{ solicitante['id'] }}">{{ solicitante['nome'] }} - {{ solicitante['email'] }} ({{ solicitante['departamento'] }})</option>
+{% endfor %}
+</select>
+<small>O cadastro permite manter nome, e-mail e departamento consistentes.</small>
+</div><br>
 <div><label>Prioridade:</label><br><select name="prioridade" required>
 <option value="BAIXA">BAIXA - Pode ser resolvida posteriormente, sem impacto imediato.</option>
 <option value="MÉDIA" selected>MÉDIA - Demanda importante, mas sem impacto crítico imediato.</option>
