@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SGDI - Sistema de Gestão de Demandas</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
@@ -14,10 +16,6 @@
             <a href="/">Início</a>
             <a href="/nova_demanda">Nova Demanda</a>
             <a href="/solicitantes">Solicitantes</a>
-            <form action="/buscar" method="GET" style="display:inline;">
-                <input type="text" name="q" placeholder="Buscar">
-                <button type="submit">Buscar</button>
-            </form>
         </div>
     </div>
 

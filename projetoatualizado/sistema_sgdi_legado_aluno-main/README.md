@@ -69,7 +69,7 @@ O fluxo básico do sistema é:
 5. Selecionar a prioridade.
 6. Informar o responsável.
 7. Salvar a demanda.
-8. Visualizar ou filtrar as demandas por solicitante e prioridade.
+8. Visualizar as demandas e combinar busca por título/descrição com filtros de prioridade, solicitante, departamento e período de criação.
 9. Editar a demanda quando for necessário alterar alguma informação.
 
 ## 5. Estrutura do projeto
@@ -127,6 +127,9 @@ Nesta versão foram realizadas as seguintes alterações:
 - criação do cadastro único de solicitantes;
 - migração compatível com demandas legadas sem vínculo;
 - filtros por solicitante e prioridade;
+- busca combinada com filtros de departamento e intervalo de datas;
+- coluna Departamento, contador de resultados e paginação na listagem;
+- controles responsivos e opção para limpar os filtros;
 - resumo da quantidade de demandas de cada solicitante;
 - obrigatoriedade de informar o responsável ao criar uma demanda;
 - possibilidade de alterar o responsável posteriormente;

@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, redirect, flash
+from flask import Flask, render_template, request, redirect, flash, url_for
 import sqlite3
-from datetime import datetime
+from datetime import datetime, date
 
 app = Flask(__name__)
 app.secret_key = '123456'
+PAGE_SIZE = 10
 
 def get_db():
     conn = sqlite3.connect('demandas.db')
@@ -28,19 +29,6 @@ def get_solicitantes(conn):
         'SELECT id, nome, email, departamento FROM solicitantes ORDER BY nome'
     ).fetchall()
 
-def demanda_query(where='', params=()):
-    conn = get_db()
-    ensure_schema(conn)
-    demandas = conn.execute(f'''SELECT d.*, s.nome AS solicitante_nome,
-            s.email AS solicitante_email, s.departamento AS solicitante_departamento
-        FROM demandas d
-        LEFT JOIN solicitantes s ON s.id = d.solicitante_id
-        {where}
-        ORDER BY CASE d.prioridade WHEN "ALTA" THEN 1
-            WHEN "MÉDIA" THEN 2 ELSE 3 END, d.id DESC''', params).fetchall()
-    conn.close()
-    return demandas
-
 def solicitante_label(demanda):
     return demanda['solicitante_nome'] or demanda['solicitante'] or 'Solicitante legado'
 
@@ -51,6 +39,29 @@ def index():
     solicitantes = get_solicitantes(conn)
     solicitante_id = request.args.get('solicitante_id', type=int)
     prioridade = request.args.get('prioridade', '')
+    departamento = request.args.get('departamento', '').strip()
+    termo = request.args.get('q', '').strip()
+    data_inicial = request.args.get('data_inicial', '').strip()
+    data_final = request.args.get('data_final', '').strip()
+    pagina = max(request.args.get('page', 1, type=int), 1)
+
+    datas_validas = True
+    for valor in (data_inicial, data_final):
+        if valor:
+            try:
+                date.fromisoformat(valor)
+            except ValueError:
+                datas_validas = False
+                break
+    if not datas_validas:
+        flash('Informe datas válidas para filtrar o período.')
+        data_inicial = ''
+        data_final = ''
+    if data_inicial and data_final and data_inicial > data_final:
+        flash('A data inicial não pode ser posterior à data final.')
+        data_inicial = ''
+        data_final = ''
+
     where = []
     params = []
     if solicitante_id:
@@ -59,21 +70,53 @@ def index():
     if prioridade in ('ALTA', 'MÉDIA', 'BAIXA'):
         where.append('d.prioridade = ?')
         params.append(prioridade)
+    if departamento:
+        where.append('s.departamento = ?')
+        params.append(departamento)
+    if data_inicial:
+        where.append('date(d.data_criacao) >= date(?)')
+        params.append(data_inicial)
+    if data_final:
+        where.append('date(d.data_criacao) <= date(?)')
+        params.append(data_final)
+    if termo:
+        where.append('(d.titulo LIKE ? OR d.descricao LIKE ?)')
+        params.extend((f'%{termo}%', f'%{termo}%'))
     clause = 'WHERE ' + ' AND '.join(where) if where else ''
+    total_query = f'''SELECT COUNT(*)
+        FROM demandas d LEFT JOIN solicitantes s ON s.id = d.solicitante_id
+        {clause}'''
+    total_demandas = conn.execute(total_query, params).fetchone()[0]
+    total_paginas = max((total_demandas + PAGE_SIZE - 1) // PAGE_SIZE, 1)
+    pagina = min(pagina, total_paginas)
+    offset = (pagina - 1) * PAGE_SIZE
     demandas = conn.execute(f'''SELECT d.*, s.nome AS solicitante_nome,
             s.email AS solicitante_email, s.departamento AS solicitante_departamento
         FROM demandas d LEFT JOIN solicitantes s ON s.id = d.solicitante_id
         {clause}
         ORDER BY CASE d.prioridade WHEN "ALTA" THEN 1 WHEN "MÉDIA" THEN 2 ELSE 3 END,
-            d.id DESC''', params).fetchall()
+            d.id DESC LIMIT ? OFFSET ?''', params + [PAGE_SIZE, offset]).fetchall()
     resumo = conn.execute('''SELECT s.id, s.nome, s.email, s.departamento,
             COUNT(d.id) AS total_demandas
         FROM solicitantes s LEFT JOIN demandas d ON d.solicitante_id = s.id
         GROUP BY s.id ORDER BY s.nome''').fetchall()
+    departamentos = conn.execute(
+        'SELECT DISTINCT departamento FROM solicitantes ORDER BY departamento'
+    ).fetchall()
     conn.close()
+    query_params = {key: value for key, value in request.args.to_dict().items() if key != 'page'}
+    inicio_exibicao = (pagina - 1) * PAGE_SIZE + 1 if total_demandas else 0
+    fim_exibicao = min(pagina * PAGE_SIZE, total_demandas) if total_demandas else 0
     return render_template('index.html', demandas=demandas, solicitantes=solicitantes,
-                           resumo=resumo, filtro_solicitante=solicitante_id,
-                           filtro_prioridade=prioridade, solicitante_label=solicitante_label)
+                           departamentos=departamentos, resumo=resumo,
+                           filtro_solicitante=solicitante_id,
+                           filtro_prioridade=prioridade,
+                           filtro_departamento=departamento, termo=termo,
+                           data_inicial=data_inicial, data_final=data_final,
+                           total_demandas=total_demandas, pagina_atual=pagina,
+                           total_paginas=total_paginas, PAGE_SIZE=PAGE_SIZE,
+                           inicio_exibicao=inicio_exibicao, fim_exibicao=fim_exibicao,
+                           query_params=query_params, solicitante_label=solicitante_label)
 
 @app.route('/nova_demanda', methods=['GET', 'POST'])
 def nova_demanda():
@@ -140,11 +183,7 @@ def deletar(id):
 
 @app.route('/buscar')
 def buscar():
-    termo = request.args.get('q', '')
-    resultados = demanda_query('WHERE d.titulo LIKE ? OR d.descricao LIKE ?',
-                               (f'%{termo}%', f'%{termo}%'))
-    return render_template('index.html', demandas=resultados, termo=termo,
-                           solicitantes=[], resumo=[], solicitante_label=solicitante_label)
+    return redirect(url_for('index', q=request.args.get('q', '')))
 
 @app.route('/detalhes/<int:id>')
 def detalhes(id):

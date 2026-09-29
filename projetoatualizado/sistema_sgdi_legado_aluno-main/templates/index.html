@@ -1,46 +1,102 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Lista de Demandas</h2>
-<form method="GET" action="/">
-<label>Filtrar por solicitante:</label>
-<select name="solicitante_id">
-<option value="">Todos</option>
-{% for solicitante in solicitantes %}
-<option value="{{ solicitante['id'] }}" {% if filtro_solicitante == solicitante['id'] %}selected{% endif %}>{{ solicitante['nome'] }} ({{ solicitante['departamento'] }})</option>
-{% endfor %}
-</select>
-<label>Prioridade:</label>
-<select name="prioridade">
-<option value="">Todas</option>
-{% for prioridade in ['ALTA', 'MÉDIA', 'BAIXA'] %}
-<option value="{{ prioridade }}" {% if filtro_prioridade == prioridade %}selected{% endif %}>{{ prioridade }}</option>
-{% endfor %}
-</select>
-<button type="submit">Filtrar</button>
+<div class="list-heading">
+    <h2>Lista de Demandas</h2>
+    <a class="new-demand" href="/nova_demanda">+ Nova Demanda</a>
+</div>
+<form class="filter-form" method="GET" action="/">
+    <div class="filter-field {% if termo %}is-active{% endif %}">
+        <label for="filtro-busca">Buscar demanda</label>
+        <input id="filtro-busca" type="search" name="q" value="{{ termo }}" placeholder="Título ou descrição">
+    </div>
+    <div class="filter-field {% if filtro_prioridade %}is-active{% endif %}">
+        <label for="filtro-prioridade">Prioridade</label>
+        <select id="filtro-prioridade" name="prioridade">
+            <option value="">Todas</option>
+            {% for prioridade in ['ALTA', 'MÉDIA', 'BAIXA'] %}
+            <option value="{{ prioridade }}" {% if filtro_prioridade == prioridade %}selected{% endif %}>{{ prioridade }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="filter-field {% if filtro_solicitante %}is-active{% endif %}">
+        <label for="filtro-solicitante">Solicitante</label>
+        <select id="filtro-solicitante" name="solicitante_id">
+            <option value="">Todos</option>
+            {% for solicitante in solicitantes %}
+            <option value="{{ solicitante['id'] }}" {% if filtro_solicitante == solicitante['id'] %}selected{% endif %}>{{ solicitante['nome'] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="filter-field {% if filtro_departamento %}is-active{% endif %}">
+        <label for="filtro-departamento">Departamento</label>
+        <select id="filtro-departamento" name="departamento">
+            <option value="">Todos</option>
+            {% for item in departamentos %}
+            <option value="{{ item['departamento'] }}" {% if filtro_departamento == item['departamento'] %}selected{% endif %}>{{ item['departamento'] }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="filter-field date-field {% if data_inicial or data_final %}is-active{% endif %}">
+        <label for="data-inicial">Criadas a partir de</label>
+        <input id="data-inicial" type="date" name="data_inicial" value="{{ data_inicial }}">
+    </div>
+    <div class="filter-field date-field {% if data_inicial or data_final %}is-active{% endif %}">
+        <label for="data-final">Criadas até</label>
+        <input id="data-final" type="date" name="data_final" value="{{ data_final }}">
+    </div>
+    <div class="filter-actions">
+        <button type="submit">Aplicar filtros</button>
+        <a href="/">Limpar filtros</a>
+    </div>
 </form>
+<p class="result-count" aria-live="polite">
+    {% if total_demandas %}
+        <strong>{{ total_demandas }}</strong> demanda(s) encontrada(s)
+        {% if total_paginas > 1 %}
+            · Exibindo {{ inicio_exibicao }}-{{ fim_exibicao }} de {{ total_demandas }}
+        {% endif %}
+    {% else %}
+        <strong>0</strong> demanda(s) encontrada(s)
+    {% endif %}
+</p>
 {% if resumo %}
 <h3>Demandas por solicitante</h3>
 <div class="resumo-solicitantes">
 {% for item in resumo %}<span><strong>{{ item['nome'] }}</strong> ({{ item['departamento'] }}): {{ item['total_demandas'] }}</span>{% endfor %}
 </div>
 {% endif %}
-<table border="1" cellpadding="10" cellspacing="0" width="100%">
-<thead><tr bgcolor="#cccccc">
-<th>ID</th><th>Título</th><th>Solicitante</th><th>Prioridade</th><th>Responsável</th><th>Data</th><th>Ações</th>
+<div class="table-scroll">
+<table class="demand-table">
+<thead><tr>
+<th>ID</th><th>Título</th><th>Solicitante</th><th>Departamento</th><th>Prioridade</th><th>Responsável</th><th>Data</th><th>Ações</th>
 </tr></thead>
 <tbody>
 {% for demanda in demandas %}
 <tr>
 <td>{{ demanda['id'] }}</td><td>{{ demanda['titulo'] }}</td><td>
-{% if demanda['solicitante_nome'] %}{{ demanda['solicitante_nome'] }}<br><small>{{ demanda['solicitante_email'] }} - {{ demanda['solicitante_departamento'] }}</small>
+{% if demanda['solicitante_nome'] %}{{ demanda['solicitante_nome'] }}<br><small>{{ demanda['solicitante_email'] }}</small>
 {% else %}<span class="legado">{{ demanda['solicitante'] }} (legado)</span>{% endif %}
 </td>
+<td>{{ demanda['solicitante_departamento'] or '—' }}</td>
 <td><span class="prioridade prioridade-{{ demanda['prioridade']|lower|replace('é','e') }}">{{ demanda['prioridade'] }}</span></td>
 <td>{{ demanda['responsavel'] }}</td><td>{{ demanda['data_criacao'] }}</td>
 <td><a href="/detalhes/{{ demanda['id'] }}">Ver</a> | <a href="/editar/{{ demanda['id'] }}">Editar</a> |
 <a href="/deletar/{{ demanda['id'] }}" style="color:red;" onclick="return confirm('Deseja realmente deletar esta demanda?')">Deletar</a></td>
 </tr>
-{% else %}<tr><td colspan="7">Nenhuma demanda encontrada.</td></tr>{% endfor %}
+{% else %}<tr><td colspan="8">Nenhuma demanda encontrada.</td></tr>{% endfor %}
 </tbody></table>
-<br><br><a href="/nova_demanda"><button>+ Nova Demanda</button></a>
+</div>
+{% if total_paginas > 1 %}
+<nav class="pagination" aria-label="Paginação de demandas">
+    {% if pagina_atual > 1 %}
+    <a href="{{ url_for('index', page=pagina_atual - 1, **query_params) }}">Anterior</a>
+    {% endif %}
+    {% for pagina in range(1, total_paginas + 1) %}
+    <a href="{{ url_for('index', page=pagina, **query_params) }}" class="{% if pagina == pagina_atual %}active{% endif %}">{{ pagina }}</a>
+    {% endfor %}
+    {% if pagina_atual < total_paginas %}
+    <a href="{{ url_for('index', page=pagina_atual + 1, **query_params) }}">Próxima</a>
+    {% endif %}
+</nav>
+{% endif %}
 {% endblock %}
