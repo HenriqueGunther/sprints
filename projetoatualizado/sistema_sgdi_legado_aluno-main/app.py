@@ -1,18 +1,36 @@
 from flask import Flask, render_template, request, redirect, flash, url_for
 import sqlite3
 from datetime import datetime, date
+from pathlib import Path
 
 app = Flask(__name__)
 app.secret_key = '123456'
 PAGE_SIZE = 10
 
 def get_db():
-    conn = sqlite3.connect('demandas.db')
+    database_path = Path(app.root_path) / 'demandas.db'
+    conn = sqlite3.connect(database_path)
     conn.row_factory = sqlite3.Row
     conn.execute('PRAGMA foreign_keys = ON')
     return conn
 
 def ensure_schema(conn):
+    conn.execute('''CREATE TABLE IF NOT EXISTS demandas (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        titulo TEXT NOT NULL,
+        descricao TEXT,
+        solicitante TEXT NOT NULL DEFAULT '',
+        data_criacao TEXT NOT NULL,
+        prioridade TEXT NOT NULL DEFAULT 'MÉDIA',
+        responsavel TEXT NOT NULL DEFAULT ''
+    )''')
+    conn.execute('''CREATE TABLE IF NOT EXISTS comentarios (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        demanda_id INTEGER,
+        comentario TEXT,
+        autor TEXT,
+        data TEXT
+    )''')
     conn.execute('''CREATE TABLE IF NOT EXISTS solicitantes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT NOT NULL COLLATE NOCASE UNIQUE,
